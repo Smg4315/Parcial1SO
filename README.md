@@ -7,8 +7,8 @@ Este proyecto busca analizar el rendimiento y consumo de memoria de diferentes c
 
 # 🛠️ Entorno de desarollo
 
-Sistema Operativo: EL archivo está diseñado para correr en Linux 
-Lenguage de programación: C++ (Compilador: Clang++ 16.00)
+- **Sistema Operativo:** EL archivo está diseñado para correr en Linux 
+- **Lenguage de programación:** C++ (Compilador: Clang++ 16.00)
 
 ## 📂 Estructura del Proyecto
 El repositorio contiene dos carpetas principales:
