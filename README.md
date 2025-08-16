@@ -32,9 +32,11 @@ Cada carpeta incluye:
    ./proc_apuntadores_class
 
 3. **Volver a la carpeta principal**
+   ```bash
     cd ..
 
 3. **Runnear el archivo de structures**
+   ```bash
     cd struct_proc
     make
     ./proc_valor_struct
