@@ -189,9 +189,6 @@ int main() {
         }
     }
 
-    monitor.iniciar_tiempo();
-
-    std::cout << "\n== Persona más longeva en todo el país ==\n";
     const Persona* longeva = personaMasLongeva(personas);
     if (longeva) {
         std::cout << "[" << longeva->id << "] " << longeva->nombre << " " << longeva->apellido
