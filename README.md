@@ -60,11 +60,11 @@ Se puede agrupar por dígitos claves del documento. Por ejemplo:
 Si los 2 últimos dígitos del documento indican el grupo, se puede crear un mapa/tabla hash donde la llave es ese par de dígitos.
 Así, no se busca en todo el arreglo, sino solo en la lista del grupo correspondiente.
 
-### 5. Localidad: ¿Cómo afecta el acceso a memoria al usar array de structs vs. vector de clases?
+### 3. Localidad: ¿Cómo afecta el acceso a memoria al usar array de structs vs. vector de clases?
 En el array de structs, los datos están contiguos en memoria, entonces el procesador aprovecha la caché mucho mejor (acceso más rápido). Mientras que en el
 Vector de clases con punteros, las direcciones pueden estar regadas en memoria, lo que hace que se pierda localidad, y el acceso es un poco más lento.
 
-### 6. Si los datos exceden la RAM, ¿cómo usar mmap o memoria virtual?
+### 4. Si los datos exceden la RAM, ¿cómo usar mmap o memoria virtual?
 Cuando los datos son gigantes, no se pueden cargar todos a la RAM. Para eso:
 Con mmap (mapear archivo a memoria): el SO carga en RAM solo las partes del archivo que se usan, no todo.
 Con memoria virtual: el sistema “finge” tener más memoria usando disco (swap/paginación), aunque es más lento.
