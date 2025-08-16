@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream> // library to handle files
 #include <vector>
 #include <memory>
 #include <limits>
@@ -158,6 +159,14 @@ std::map<char, double> porcentajeMayores50PorCalendario(const std::vector<std::u
 }
 
 int main() {
+
+    // Lets create the instance of the file in append mode fot the other files to use it
+    std::ofstream archivo("../metricas.txt", std::ios::app); // We use 2 dots for specifyng the file is out the directory
+    if (!archivo) {
+        std::cerr << "Error al abrir el archivo para escritura." << std::endl;
+        return 1;
+    }
+
     Monitor monitor;
     int n;
     std::cout << "Ingrese número de personas a generar: ";
@@ -176,6 +185,12 @@ int main() {
     std::cout << "Generación de datos:\n";
     std::cout << "Tiempo = " << tiempoGeneracion << " ms,\n";
     std::cout << "Memoria = " << memoriaGeneracion << " KB\n";
+
+    archivo << "----------------------------------------\n";
+    archivo << "METRICAS DE GENERACIÓN DE DATOS USANDO CLASES Y APUNTADORES CON " << n << " PERSONAS: \n";
+    archivo << "Tiempo = " << tiempoGeneracion << " ms,\n";
+    archivo << "Memoria = " << memoriaGeneracion << " KB\n";
+    archivo << "----------------------------------------\n";
 
     char opcionVer;
     std::cout << "\n¿Desea ver el listado completo de personas generadas? (s/n): ";
@@ -268,6 +283,14 @@ int main() {
 
     double tiempoProcesamiento = monitor.detener_tiempo();
     long memoriaProcesamiento = monitor.obtener_memoria();
+
+
+    archivo << "----------------------------------------\n";
+    archivo << "METRICAS DE PROCESAMIENTO USANDO CLASES Y APUNTADORES CON " << n << " PERSONAS:\n";
+    archivo << "Tiempo = " << tiempoProcesamiento << " ms\n";
+    archivo << "Memoria usada después de procesar los datos = " << memoriaProcesamiento << " KB\n";
+    archivo << "----------------------------------------\n";
+    archivo << "\n";
 
     std::cout << "\nProcesamiento:\n";
     std::cout << "Tiempo = " << tiempoProcesamiento << " ms\n";

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream> // library to handle files
 #include <vector>
 #include <map>
 #include <limits>
@@ -157,6 +158,14 @@ std::map<char, double> porcentajeMayores50PorCalendario(const std::vector<Person
 }
 
 int main() {
+
+    // Lets create the instance of the file we'll use
+    std::ofstream archivo("../metricas.txt", std::ios::app); // We use 2 dots for specifyng the file is out the directory
+    if (!archivo) {
+        std::cerr << "Error al abrir el archivo para escritura." << std::endl;
+        return 1;
+    }
+
     Monitor monitor;
     int n;
     std::cout << "Ingrese número de personas a generar: ";
@@ -170,6 +179,12 @@ int main() {
     std::cout << "Generación de datos:\n";
     std::cout << "Tiempo = " << tiempoGen << " ms\n";
     std::cout << "Memoria = " << memGen << " KB\n";
+
+    archivo << "----------------------------------------\n";
+    archivo << "METRICAS DE GENERACIÓN DE DATOS USANDO STRUCTS Y VALORES CON " << n << " PERSONAS: \n";
+    archivo << "Tiempo = " << tiempoGen << " ms,\n";
+    archivo << "Memoria = " << memGen << " KB\n";
+    archivo << "----------------------------------------\n";
 
     char opcionVer;
     std::cout << "\n¿Desea ver el listado completo de personas generadas? (s/n): ";
@@ -266,6 +281,14 @@ int main() {
     std::cout << "\nProcesamiento: \n";
     std::cout << "Tiempo = " << tiempoProc << " ms \n";
     std::cout << "Memoria usada despues de procesar los datos = " << memProc << " KB\n";
+    std::cout << "\n";
+
+    archivo << "----------------------------------------\n";
+    archivo << "METRICAS DE PROCESAMIENTO USANDO STRUCTS Y VALORES CON " << n << " PERSONAS:\n";
+    archivo << "Tiempo = " << tiempoProc << " ms\n";
+    archivo << "Memoria usada después de procesar los datos = " << memProc << " KB\n";
+    archivo << "----------------------------------------\n";
+    archivo << "\n";
 
     return 0;
 }
