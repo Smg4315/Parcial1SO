@@ -22,6 +22,7 @@ Cada carpeta incluye:
 ## ▶️ Ejecución
 
 1. **Clonar el repositorio**
+    ```bash
     git clone https://github.com/Smg4315/Parcial1SO.git
 
 2. **Runnear el archivo de clases**
