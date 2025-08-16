@@ -1,0 +1,696 @@
+/media_clases
+
+//main.cpp
+#include <iostream>
+#include <vector>
+#include <limits>
+#include <memory>
+#include "persona.h"
+#include "generador.h"
+#include "monitor.h"
+
+/**
+ * Muestra el menú principal de la aplicación.
+ * 
+ * POR QUÉ: Guiar al usuario a través de las funcionalidades disponibles.
+ * CÓMO: Imprimiendo las opciones en consola.
+ * PARA QUÉ: Interacción amigable con el usuario.
+ */
+void mostrarMenu() {
+    std::cout << "\n\n=== MENÚ PRINCIPAL ===";
+    std::cout << "\n0. Crear nuevo conjunto de datos";
+    std::cout << "\n1. Mostrar resumen de todas las personas";
+    std::cout << "\n2. Mostrar detalle completo por índice";
+    std::cout << "\n3. Buscar persona por ID";
+    std::cout << "\n4. Mostrar estadísticas de rendimiento";
+    std::cout << "\n5. Exportar estadísticas a CSV";
+    std::cout << "\n6. Salir";
+    std::cout << "\nSeleccione una opción: ";
+}
+
+/**
+ * Punto de entrada principal del programa.
+ * 
+ * POR QUÉ: Iniciar la aplicación y manejar el flujo principal.
+ * CÓMO: Mediante un bucle que muestra el menú y procesa la opción seleccionada.
+ * PARA QUÉ: Ejecutar las funcionalidades del sistema.
+ */
+int main() {
+    srand(time(nullptr)); // Semilla para generación aleatoria
+    
+    // Puntero inteligente para gestionar la colección de personas
+    // POR QUÉ: Evitar fugas de memoria y garantizar liberación automática.
+    std::unique_ptr<std::vector<Persona>> personas = nullptr;
+    
+    Monitor monitor; // Monitor para medir rendimiento
+    
+    int opcion;
+    do {
+        mostrarMenu();
+        std::cin >> opcion;
+        
+        // Variables locales para uso en los casos
+        size_t tam = 0;
+        int indice;
+        std::string idBusqueda;
+        
+        // Iniciar medición de tiempo y memoria para la operación actual
+        monitor.iniciar_tiempo();
+        long memoria_inicio = monitor.obtener_memoria();
+        
+        switch(opcion) {
+            case 0: { // Crear nuevo conjunto de datos
+                int n;
+                std::cout << "\nIngrese el número de personas a generar: ";
+                std::cin >> n;
+                
+                if (n <= 0) {
+                    std::cout << "Error: Debe generar al menos 1 persona\n";
+                    break;
+                }
+                
+                // Generar el nuevo conjunto de personas
+                auto nuevasPersonas = generarColeccion(n);
+                tam = nuevasPersonas.size();
+                
+                // Mover el conjunto al puntero inteligente (propiedad única)
+                personas = std::make_unique<std::vector<Persona>>(std::move(nuevasPersonas));
+                
+                // Medir tiempo y memoria usada
+                double tiempo_gen = monitor.detener_tiempo();
+                long memoria_gen = monitor.obtener_memoria() - memoria_inicio;
+                
+                std::cout << "Generadas " << tam << " personas en " 
+                          << tiempo_gen << " ms, Memoria: " << memoria_gen << " KB\n";
+                
+                // Registrar la operación
+                monitor.registrar("Crear datos", tiempo_gen, memoria_gen);
+                break;
+            }
+                
+            case 1: { // Mostrar resumen de todas las personas
+                if (!personas || personas->empty()) {
+                    std::cout << "\nNo hay datos disponibles. Use opción 0 primero.\n";
+                    break;
+                }
+                
+                tam = personas->size();
+                std::cout << "\n=== RESUMEN DE PERSONAS (" << tam << ") ===\n";
+                for(size_t i = 0; i < tam; ++i) {
+                    std::cout << i << ". ";
+                    (*personas)[i].mostrarResumen();
+                    std::cout << "\n";
+                }
+                
+                double tiempo_mostrar = monitor.detener_tiempo();
+                long memoria_mostrar = monitor.obtener_memoria() - memoria_inicio;
+                monitor.registrar("Mostrar resumen", tiempo_mostrar, memoria_mostrar);
+                break;
+            }
+                
+            case 2: { // Mostrar detalle por índice
+                if (!personas || personas->empty()) {
+                    std::cout << "\nNo hay datos disponibles. Use opción 0 primero.\n";
+                    break;
+                }
+                
+                tam = personas->size();
+                std::cout << "\nIngrese el índice (0-" << tam-1 << "): ";
+                if(std::cin >> indice) {
+                    if(indice >= 0 && static_cast<size_t>(indice) < tam) {
+                        (*personas)[indice].mostrar();
+                    } else {
+                        std::cout << "Índice fuera de rango!\n";
+                    }
+                } else {
+                    std::cout << "Entrada inválida!\n";
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                }
+                
+                double tiempo_detalle = monitor.detener_tiempo();
+                long memoria_detalle = monitor.obtener_memoria() - memoria_inicio;
+                monitor.registrar("Mostrar detalle", tiempo_detalle, memoria_detalle);
+                break;
+            }
+                
+            case 3: { // Buscar por ID
+                if (!personas || personas->empty()) {
+                    std::cout << "\nNo hay datos disponibles. Use opción 0 primero.\n";
+                    break;
+                }
+                
+                std::cout << "\nIngrese el ID a buscar: ";
+                std::cin >> idBusqueda;
+                
+                if(const Persona* encontrada = buscarPorID(*personas, idBusqueda)) {
+                    encontrada->mostrar();
+                } else {
+                    std::cout << "No se encontró persona con ID " << idBusqueda << "\n";
+                }
+                
+                double tiempo_busqueda = monitor.detener_tiempo();
+                long memoria_busqueda = monitor.obtener_memoria() - memoria_inicio;
+                monitor.registrar("Buscar por ID", tiempo_busqueda, memoria_busqueda);
+                break;
+            }
+                
+            case 4: // Mostrar estadísticas de rendimiento
+                monitor.mostrar_resumen();
+                break;
+                
+            case 5: // Exportar estadísticas a CSV
+                monitor.exportar_csv();
+                break;
+                
+            case 6: // Salir
+                std::cout << "Saliendo...\n";
+                break;
+                
+            default:
+                std::cout << "Opción inválida!\n";
+        }
+        
+        // Mostrar estadísticas de la operación (excepto para opciones 4,5,6)
+        if (opcion >= 0 && opcion <= 3) {
+            double tiempo = monitor.detener_tiempo();
+            long memoria = monitor.obtener_memoria() - memoria_inicio;
+            monitor.mostrar_estadistica("Opción " + std::to_string(opcion), tiempo, memoria);
+        }
+        
+    } while(opcion != 6);
+    
+    return 0;
+}
+
+//generador.cpp
+#include "generador.h"
+#include <cstdlib>   // rand(), srand()
+#include <ctime>     // time()
+#include <random>    // std::mt19937, std::uniform_real_distribution
+#include <vector>
+#include <algorithm> // std::find_if
+
+// Bases de datos para generación realista
+
+// Nombres femeninos comunes en Colombia
+const std::vector<std::string> nombresFemeninos = {
+    "María", "Luisa", "Carmen", "Ana", "Sofía", "Isabel", "Laura", "Andrea", "Paula", "Valentina",
+    "Camila", "Daniela", "Carolina", "Fernanda", "Gabriela", "Patricia", "Claudia", "Diana", "Lucía", "Ximena"
+};
+
+// Nombres masculinos comunes en Colombia
+const std::vector<std::string> nombresMasculinos = {
+    "Juan", "Carlos", "José", "James", "Andrés", "Miguel", "Luis", "Pedro", "Alejandro", "Ricardo",
+    "Felipe", "David", "Jorge", "Santiago", "Daniel", "Fernando", "Diego", "Rafael", "Martín", "Óscar",
+    "Edison", "Nestor", "Gertridis"
+};
+
+// Apellidos comunes en Colombia
+const std::vector<std::string> apellidos = {
+    "Gómez", "Rodríguez", "Martínez", "López", "García", "Pérez", "González", "Sánchez", "Ramírez", "Torres",
+    "Díaz", "Vargas", "Castro", "Ruiz", "Álvarez", "Romero", "Suárez", "Rojas", "Moreno", "Muñoz", "Valencia",
+};
+
+// Principales ciudades colombianas
+const std::vector<std::string> ciudadesColombia = {
+    "Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena", "Bucaramanga", "Pereira", "Santa Marta", "Cúcuta", "Ibagué",
+    "Manizales", "Pasto", "Neiva", "Villavicencio", "Armenia", "Sincelejo", "Valledupar", "Montería", "Popayán", "Tunja"
+};
+
+/**
+ * Implementación de generarFechaNacimiento.
+ * 
+ * POR QUÉ: Simular fechas de nacimiento realistas.
+ * CÓMO: Día (1-28), mes (1-12), año (1960-2009).
+ * PARA QUÉ: Atributo fechaNacimiento de Persona.
+ */
+std::string generarFechaNacimiento() {
+    int dia = 1 + rand() % 28;       // Día: 1 a 28 (evita problemas con meses)
+    int mes = 1 + rand() % 12;        // Mes: 1 a 12
+    int anio = 1960 + rand() % 50;    // Año: 1960 a 2009
+    return std::to_string(dia) + "/" + std::to_string(mes) + "/" + std::to_string(anio);
+}
+
+/**
+ * Implementación de generarID.
+ * 
+ * POR QUÉ: Generar identificadores únicos y secuenciales.
+ * CÓMO: Contador estático que inicia en 1000000000 y se incrementa.
+ * PARA QUÉ: Simular números de cédula.
+ */
+std::string generarID() {
+    static long contador = 1000000000; // Inicia en 1,000,000,000
+    return std::to_string(contador++); // Convierte a string e incrementa
+}
+
+/**
+ * Implementación de randomDouble.
+ * 
+ * POR QUÉ: Generar números decimales aleatorios en un rango.
+ * CÓMO: Mersenne Twister (mejor que rand()) y distribución uniforme.
+ * PARA QUÉ: Valores de ingresos, patrimonio, etc.
+ */
+double randomDouble(double min, double max) {
+    static std::mt19937 generator(time(nullptr)); // Semilla basada en tiempo
+    std::uniform_real_distribution<double> distribution(min, max);
+    return distribution(generator);
+}
+
+/**
+ * Implementación de generarPersona.
+ * 
+ * POR QUÉ: Crear una persona con datos aleatorios.
+ * CÓMO: Seleccionando aleatoriamente de las bases de datos y generando números.
+ * PARA QUÉ: Generar datos de prueba.
+ */
+Persona generarPersona() {
+    // Decide si es hombre o mujer
+    bool esHombre = rand() % 2;
+    
+    // Selecciona nombre según género
+    std::string nombre = esHombre ? 
+        nombresMasculinos[rand() % nombresMasculinos.size()] :
+        nombresFemeninos[rand() % nombresFemeninos.size()];
+    
+    // Construye apellido compuesto (dos apellidos aleatorios)
+    std::string apellido = apellidos[rand() % apellidos.size()];
+    apellido += " ";
+    apellido += apellidos[rand() % apellidos.size()];
+    
+    // Genera los demás atributos
+    std::string id = generarID();
+    std::string ciudad = ciudadesColombia[rand() % ciudadesColombia.size()];
+    std::string fecha = generarFechaNacimiento();
+    
+    // Genera datos financieros realistas
+    double ingresos = randomDouble(10000000, 500000000);   // 10M a 500M COP
+    double patrimonio = randomDouble(0, 2000000000);       // 0 a 2,000M COP
+    double deudas = randomDouble(0, patrimonio * 0.7);     // Deudas hasta el 70% del patrimonio
+    bool declarante = (ingresos > 50000000) && (rand() % 100 > 30); // Probabilidad 70% si ingresos > 50M
+    
+    return Persona(nombre, apellido, id, ciudad, fecha, ingresos, patrimonio, deudas, declarante);
+}
+
+/**
+ * Implementación de generarColeccion.
+ * 
+ * POR QUÉ: Generar un conjunto de n personas.
+ * CÓMO: Reservando espacio y agregando n personas generadas.
+ * PARA QUÉ: Crear datasets para pruebas.
+ */
+std::vector<Persona> generarColeccion(int n) {
+    std::vector<Persona> personas;
+    personas.reserve(n); // Reserva espacio para n personas (eficiencia)
+    
+    for (int i = 0; i < n; ++i) {
+        personas.push_back(generarPersona());
+    }
+    
+    return personas;
+}
+
+/**
+ * Implementación de buscarPorID.
+ * 
+ * POR QUÉ: Encontrar una persona por su ID en una colección.
+ * CÓMO: Usando un algoritmo de búsqueda secuencial (lineal).
+ * PARA QUÉ: Para operaciones de búsqueda en la aplicación.
+ */
+const Persona* buscarPorID(const std::vector<Persona>& personas, const std::string& id) {
+    // Usa find_if con una lambda para buscar por ID
+    auto it = std::find_if(personas.begin(), personas.end(),
+        [&id](const Persona& p) { return p.getId() == id; });
+    
+    if (it != personas.end()) {
+        return &(*it); // Devuelve puntero a la persona encontrada
+    } else {
+        return nullptr; // No encontrado
+    }
+}
+
+//generador.h
+#ifndef GENERADOR_H
+#define GENERADOR_H
+
+#include "persona.h"
+#include <vector>
+
+// Funciones para generación de datos aleatorios
+
+/**
+ * Genera una fecha de nacimiento aleatoria entre 1960 y 2010.
+ * 
+ * POR QUÉ: Simular fechas realistas para personas.
+ * CÓMO: Combinando números aleatorios para día, mes y año.
+ * PARA QUÉ: Inicializar el atributo fechaNacimiento de Persona.
+ */
+std::string generarFechaNacimiento();
+
+/**
+ * Genera un ID único secuencial.
+ * 
+ * POR QUÉ: Necesidad de identificadores únicos para cada persona.
+ * CÓMO: Usando un contador estático que incrementa en cada llamada.
+ * PARA QUÉ: Garantizar unicidad en los IDs.
+ */
+std::string generarID();
+
+/**
+ * Genera un número decimal aleatorio en un rango [min, max].
+ * 
+ * POR QUÉ: Necesidad de valores realistas para ingresos, patrimonio, etc.
+ * CÓMO: Usando un generador Mersenne Twister y una distribución uniforme.
+ * PARA QUÉ: Producir valores financieros aleatorios pero dentro de rangos lógicos.
+ */
+double randomDouble(double min, double max);
+
+/**
+ * Crea una persona con datos aleatorios.
+ * 
+ * POR QUÉ: Automatizar la creación de registros de personas.
+ * CÓMO: Combinando las funciones generadoras y bases de datos de nombres, apellidos, etc.
+ * PARA QUÉ: Poblar el sistema con datos de prueba.
+ */
+Persona generarPersona();
+
+/**
+ * Genera una colección (vector) de n personas.
+ * 
+ * POR QUÉ: Crear conjuntos de datos de diferentes tamaños.
+ * CÓMO: Llamando a generarPersona() n veces.
+ * PARA QUÉ: Pruebas de rendimiento y funcionalidad con volúmenes variables.
+ */
+std::vector<Persona> generarColeccion(int n);
+
+/**
+ * Busca una persona por ID en un vector de personas.
+ * 
+ * POR QUÉ: Recuperar una persona específica de una colección.
+ * CÓMO: Usando un algoritmo de búsqueda lineal (o binaria si se ordena).
+ * PARA QUÉ: Implementar funcionalidad de búsqueda en la aplicación.
+ * 
+ * @param personas Vector de personas donde buscar.
+ * @param id ID a buscar.
+ * @return Puntero a la persona encontrada o nullptr si no se encuentra.
+ */
+const Persona* buscarPorID(const std::vector<Persona>& personas, const std::string& id);
+
+#endif // GENERADOR_H
+
+//monitor.cpp
+#include "monitor.h"
+#include <unistd.h> // sysconf
+#include <cstdio>   // FILE, fscanf
+
+/**
+ * Inicia el cronómetro.
+ * 
+ * POR QUÉ: Comenzar a medir el tiempo de una operación.
+ * CÓMO: Guardando el tiempo actual en 'inicio'.
+ * PARA QUÉ: Poder calcular la duración después.
+ */
+void Monitor::iniciar_tiempo() {
+    inicio = std::chrono::high_resolution_clock::now();
+}
+
+/**
+ * Detiene el cronómetro y devuelve el tiempo transcurrido.
+ * 
+ * POR QUÉ: Obtener la duración de una operación.
+ * CÓMO: Calculando la diferencia entre el tiempo actual y 'inicio'.
+ * PARA QUÉ: Conocer el tiempo que tomó una operación.
+ * @return Tiempo en milisegundos con decimales.
+ */
+double Monitor::detener_tiempo() {
+    auto fin = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duracion = fin - inicio;
+    return duracion.count();
+}
+
+/**
+ * Obtiene la memoria residente actual (RSS) del proceso en KB.
+ * 
+ * POR QUÉ: Medir el consumo de memoria física.
+ * CÓMO: Leyendo el archivo /proc/self/statm (específico de Linux).
+ * PARA QUÉ: Monitorear el uso de memoria en operaciones críticas.
+ * @return Memoria residente en KB, o 0 en caso de error.
+ */
+long Monitor::obtener_memoria() {
+    FILE* file = fopen("/proc/self/statm", "r");
+    if (!file) {
+        perror("Error al abrir /proc/self/statm");
+        return 0;
+    }
+    
+    long size, resident, shared, text, lib, data, dt;
+    if (fscanf(file, "%ld %ld %ld %ld %ld %ld %ld", 
+              &size, &resident, &shared, &text, &lib, &data, &dt) != 7) {
+        fclose(file);
+        return 0;
+    }
+    
+    fclose(file);
+    
+    // Calcular memoria en KB: resident (páginas) * tamaño_página (KB)
+    long page_size_kb = sysconf(_SC_PAGESIZE) / 1024;
+    return resident * page_size_kb;
+}
+
+/**
+ * Registra una operación con sus métricas de tiempo y memoria.
+ * 
+ * POR QUÉ: Almacenar estadísticas para análisis posterior.
+ * CÓMO: Guardando un nuevo Registro en el vector y actualizando acumulados.
+ * PARA QUÉ: Tener un histórico de rendimiento.
+ */
+void Monitor::registrar(const std::string& operacion, double tiempo, long memoria) {
+    registros.push_back({operacion, tiempo, memoria});
+    total_tiempo += tiempo;
+    if (memoria > max_memoria) {
+        max_memoria = memoria;
+    }
+}
+
+/**
+ * Muestra las estadísticas de una operación.
+ * 
+ * POR QUÉ: Feedback inmediato al usuario.
+ * CÓMO: Imprimiendo en consola.
+ * PARA QUÉ: Visualizar el rendimiento de una operación concreta.
+ */
+void Monitor::mostrar_estadistica(const std::string& operacion, double tiempo, long memoria) {
+    std::cout << "\n[ESTADÍSTICAS] " << operacion << " - "
+              << "Tiempo: " << tiempo << " ms, "
+              << "Memoria: " << memoria << " KB\n";
+}
+
+/**
+ * Muestra un resumen de todas las estadísticas registradas.
+ * 
+ * POR QUÉ: Proporcionar una visión global del rendimiento.
+ * CÓMO: Iterando sobre todos los registros e imprimiéndolos.
+ * PARA QUÉ: Análisis comparativo de diferentes operaciones.
+ */
+void Monitor::mostrar_resumen() {
+    std::cout << "\n=== RESUMEN DE ESTADÍSTICAS ===";
+    for (const auto& reg : registros) {
+        std::cout << "\n" << reg.operacion << ": "
+                  << reg.tiempo << " ms, " << reg.memoria << " KB";
+    }
+    std::cout << "\nTotal tiempo: " << total_tiempo << " ms";
+    std::cout << "\nMemoria máxima: " << max_memoria << " KB\n";
+}
+
+/**
+ * Exporta las estadísticas a un archivo CSV.
+ * 
+ * POR QUÉ: Permitir análisis con herramientas externas (Excel, Python, etc.).
+ * CÓMO: Escribiendo en un archivo de texto con formato CSV.
+ * PARA QUÉ: Generar reportes y gráficos.
+ * @param nombre_archivo Nombre del archivo CSV (por defecto "estadisticas.csv")
+ */
+void Monitor::exportar_csv(const std::string& nombre_archivo) {
+    std::ofstream archivo(nombre_archivo);
+    if (!archivo) {
+        std::cerr << "Error al abrir archivo: " << nombre_archivo << std::endl;
+        return;
+    }
+    archivo << "Operacion,Tiempo(ms),Memoria(KB)\n";
+    for (const auto& reg : registros) {
+        archivo << reg.operacion << "," << reg.tiempo << "," << reg.memoria << "\n";
+    }
+    archivo.close();
+    std::cout << "Estadísticas exportadas a " << nombre_archivo << "\n";
+}
+
+//monitor.h
+#ifndef MONITOR_H
+#define MONITOR_H
+
+#include <chrono>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <fstream>
+
+/**
+ * Clase para monitorear el rendimiento (tiempo y memoria).
+ * 
+ * POR QUÉ: Cuantificar el rendimiento de las operaciones.
+ * CÓMO: Midiendo tiempo con chrono y memoria con /proc/self/statm (Linux).
+ * PARA QUÉ: Optimización y análisis de rendimiento.
+ */
+class Monitor {
+public:
+    void iniciar_tiempo();
+    double detener_tiempo();
+    long obtener_memoria();
+    
+    void registrar(const std::string& operacion, double tiempo, long memoria);
+    void mostrar_estadistica(const std::string& operacion, double tiempo, long memoria);
+    void mostrar_resumen();
+    void exportar_csv(const std::string& nombre_archivo = "estadisticas.csv");
+
+private:
+    // Estructura para almacenar métricas de una operación
+    struct Registro {
+        std::string operacion; // Nombre de la operación
+        double tiempo;         // Tiempo en milisegundos
+        long memoria;          // Memoria en KB
+    };
+    
+    std::chrono::high_resolution_clock::time_point inicio; // Punto de inicio del cronómetro
+    std::vector<Registro> registros; // Historial de registros
+    double total_tiempo = 0;         // Tiempo total acumulado
+    long max_memoria = 0;            // Máximo de memoria utilizado
+};
+
+#endif // MONITOR_H
+
+//persona.cpp
+#include "persona.h"
+#include <iomanip> // Para std::setprecision
+
+/**
+ * Implementación del constructor de Persona.
+ * 
+ * POR QUÉ: Inicializar los miembros de la clase.
+ * CÓMO: Usando la lista de inicialización y moviendo los strings para evitar copias.
+ * PARA QUÉ: Eficiencia y correcta construcción del objeto.
+ */
+Persona::Persona(std::string nom, std::string ape, std::string id, 
+                 std::string ciudad, std::string fecha, double ingresos, 
+                 double patri, double deud, bool declara)
+    : nombre(std::move(nom)), 
+      apellido(std::move(ape)), 
+      id(std::move(id)), 
+      ciudadNacimiento(std::move(ciudad)),
+      fechaNacimiento(std::move(fecha)), 
+      ingresosAnuales(ingresos), 
+      patrimonio(patri),
+      deudas(deud), 
+      declaranteRenta(declara) {}
+
+/**
+ * Implementación de mostrar.
+ * 
+ * POR QUÉ: Mostrar todos los datos de la persona de forma estructurada.
+ * CÓMO: Usando flujos de salida y formateadores.
+ * PARA QUÉ: Facilitar la lectura de los datos completos de una persona.
+ */
+void Persona::mostrar() const {
+    std::cout << "-------------------------------------\n";
+    std::cout << "[" << id << "] Nombre: " << nombre << " " << apellido << "\n";
+    std::cout << "   - Ciudad de nacimiento: " << ciudadNacimiento << "\n";
+    std::cout << "   - Fecha de nacimiento: " << fechaNacimiento << "\n\n";
+    std::cout << std::fixed << std::setprecision(2); // Formato de números
+    std::cout << "   - Ingresos anuales: $" << ingresosAnuales << "\n";
+    std::cout << "   - Patrimonio: $" << patrimonio << "\n";
+    std::cout << "   - Deudas: $" << deudas << "\n";
+    std::cout << "   - Declarante de renta: " << (declaranteRenta ? "Sí" : "No") << "\n";
+}
+
+/**
+ * Implementación de mostrarResumen.
+ * 
+ * POR QUÉ: Mostrar información esencial de la persona en una sola línea.
+ * CÓMO: Imprime ID, nombre completo, ciudad e ingresos.
+ * PARA QUÉ: Listados rápidos y eficientes.
+ */
+void Persona::mostrarResumen() const {
+    std::cout << "[" << id << "] " << nombre << " " << apellido
+              << " | " << ciudadNacimiento 
+              << " | $" << std::fixed << std::setprecision(2) << ingresosAnuales;
+}
+
+//persona.h
+#ifndef PERSONA_H
+#define PERSONA_H
+
+#include <string>
+#include <iostream>
+#include <iomanip>
+
+/**
+ * Clase que representa una persona con datos personales y financieros.
+ * 
+ * POR QUÉ: Para modelar una entidad persona con atributos relevantes para el sistema.
+ * CÓMO: Mediante una clase con atributos privados y métodos públicos de acceso y visualización.
+ * PARA QUÉ: Centralizar y encapsular la información de una persona, garantizando integridad de datos.
+ */
+class Persona {
+private:
+    std::string nombre;           // Nombre de pila
+    std::string apellido;         // Apellidos
+    std::string id;               // Identificador único (cédula)
+    std::string ciudadNacimiento; // Ciudad de nacimiento
+    std::string fechaNacimiento;  // Fecha de nacimiento en formato DD/MM/AAAA
+    double ingresosAnuales;       // Ingresos anuales en pesos colombianos
+    double patrimonio;            // Patrimonio total (activos)
+    double deudas;                // Deudas totales (pasivos)
+    bool declaranteRenta;         // Si es declarante de renta
+
+public:
+    /**
+     * Constructor para inicializar todos los atributos de la persona.
+     * 
+     * POR QUÉ: Necesidad de crear instancias de Persona con todos sus datos.
+     * CÓMO: Recibe cada atributo por valor y los mueve a los miembros correspondientes.
+     * PARA QUÉ: Construir objetos Persona completos y válidos.
+     */
+    Persona(std::string nom, std::string ape, std::string id, 
+            std::string ciudad, std::string fecha, double ingresos, 
+            double patri, double deud, bool declara);
+    
+    // Métodos de acceso (getters) - Implementados inline para eficiencia
+    std::string getNombre() const { return nombre; }
+    std::string getApellido() const { return apellido; }
+    std::string getId() const { return id; }
+    std::string getCiudadNacimiento() const { return ciudadNacimiento; }
+    std::string getFechaNacimiento() const { return fechaNacimiento; }
+    double getIngresosAnuales() const { return ingresosAnuales; }
+    double getPatrimonio() const { return patrimonio; }
+    double getDeudas() const { return deudas; }
+    bool getDeclaranteRenta() const { return declaranteRenta; }
+
+    /**
+     * Muestra toda la información de la persona de forma detallada.
+     * 
+     * POR QUÉ: Para inspeccionar todos los datos de una persona en formato legible.
+     * CÓMO: Imprime en la salida estándar con formato.
+     * PARA QUÉ: Depuración y visualización completa de un registro.
+     */
+    void mostrar() const;
+    
+    /**
+     * Muestra un resumen de la persona (ID, nombre, ciudad, ingresos).
+     * 
+     * POR QUÉ: Para listar personas de forma compacta en listados.
+     * CÓMO: Imprime solo los datos más relevantes.
+     * PARA QUÉ: Visualización eficiente en colecciones grandes.
+     */
+    void mostrarResumen() const;
+};
+
+#endif // PERSONA_H
