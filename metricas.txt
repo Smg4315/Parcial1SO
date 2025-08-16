@@ -1,0 +1,26 @@
+========================================
+|   MÉTRICAS DE PROGRAMA (CLASES/APUNTADORES)   |
+========================================
+
+----------------------------------------
+METRICAS DE GENERACIÓN DE DATOS USANDO CLASES Y VALORES CON 10000000 PERSONAS: 
+Tiempo = 12657 ms,
+Memoria = 0 KB
+----------------------------------------
+----------------------------------------
+METRICAS DE PROCESAMIENTO USANDO CLASES Y VALORES CON 10000000 PERSONAS:
+Tiempo = 75268.4 ms
+Memoria usada después de procesar los datos = 0 KB
+----------------------------------------
+
+----------------------------------------
+METRICAS DE GENERACIÓN DE DATOS USANDO CLASES Y APUNTADORES CON 10000000 PERSONAS: 
+Tiempo = 13571 ms,
+Memoria = 0 KB
+----------------------------------------
+----------------------------------------
+METRICAS DE PROCESAMIENTO USANDO CLASES Y APUNTADORES CON 10000000 PERSONAS:
+Tiempo = 74726.9 ms
+Memoria usada después de procesar los datos = 0 KB
+----------------------------------------
+

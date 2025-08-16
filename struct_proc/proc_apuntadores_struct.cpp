@@ -204,6 +204,8 @@ int main() {
         }
     }
 
+    monitor.iniciar_tiempo();
+
     const Persona* longeva = personaMasLongeva(personas);
     if (longeva) {
         std::cout << "[" << longeva->id << "] " << longeva->nombre << " " << longeva->apellido
