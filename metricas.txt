@@ -3,24 +3,46 @@
 ========================================
 
 ----------------------------------------
-METRICAS DE GENERACIÓN DE DATOS USANDO CLASES Y VALORES CON 10000000 PERSONAS: 
-Tiempo = 12657 ms,
-Memoria = 0 KB
+METRICAS DE GENERACIÓN DE DATOS USANDO CLASES Y VALORES CON 1000000 PERSONAS: 
+Tiempo = 1215.26 ms,
+Memoria = 231808 KB
 ----------------------------------------
 ----------------------------------------
-METRICAS DE PROCESAMIENTO USANDO CLASES Y VALORES CON 10000000 PERSONAS:
-Tiempo = 75268.4 ms
-Memoria usada después de procesar los datos = 0 KB
+METRICAS DE PROCESAMIENTO USANDO CLASES Y VALORES CON 1000000 PERSONAS:
+Tiempo = 10848.8 ms
+Memoria usada después de procesar los datos = 238052 KB
 ----------------------------------------
 
 ----------------------------------------
 METRICAS DE GENERACIÓN DE DATOS USANDO CLASES Y APUNTADORES CON 10000000 PERSONAS: 
-Tiempo = 13571 ms,
-Memoria = 0 KB
+Tiempo = 13054.3 ms,
+Memoria = 2521216 KB
 ----------------------------------------
 ----------------------------------------
 METRICAS DE PROCESAMIENTO USANDO CLASES Y APUNTADORES CON 10000000 PERSONAS:
-Tiempo = 74726.9 ms
-Memoria usada después de procesar los datos = 0 KB
+Tiempo = 97304 ms
+Memoria usada después de procesar los datos = 2585120 KB
+----------------------------------------
+
+----------------------------------------
+METRICAS DE GENERACIÓN DE DATOS USANDO STRUCTS Y VALORES CON 10000000 PERSONAS: 
+Tiempo = 11675 ms,
+Memoria = 2334720 KB
+----------------------------------------
+----------------------------------------
+METRICAS DE PROCESAMIENTO USANDO STRUCTS Y VALORES CON 10000000 PERSONAS:
+Tiempo = 88936 ms
+Memoria usada después de procesar los datos = 2392520 KB
+----------------------------------------
+
+----------------------------------------
+METRICAS DE GENERACIÓN DE DATOS USANDO STRUCTS Y APUNTADORES CON 10000000 PERSONAS: 
+Tiempo = 12433 ms,
+Memoria = 2521344 KB
+----------------------------------------
+----------------------------------------
+METRICAS DE PROCESAMIENTO USANDO STRUCTS Y APUNTADORES CON 10000000 PERSONAS:
+Tiempo = 92879 ms
+Memoria usada después de procesar los datos = 2587164 KB
 ----------------------------------------
 
