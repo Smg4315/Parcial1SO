@@ -37,12 +37,12 @@ Memoria usada después de procesar los datos = 2384296 KB
 
 ----------------------------------------
 METRICAS DE GENERACIÓN DE DATOS USANDO STRUCTS Y APUNTADORES CON 10000000 PERSONAS: 
-Tiempo = -107050 ms,
-Memoria = 2521088 KB
+Tiempo = 12300 ms,
+Memoria = 2521216 KB
 ----------------------------------------
 ----------------------------------------
 METRICAS DE PROCESAMIENTO USANDO STRUCTS Y APUNTADORES CON 10000000 PERSONAS:
-Tiempo = 87554 ms
-Memoria usada después de procesar los datos = 2586576 KB
+Tiempo = 95973 ms
+Memoria usada después de procesar los datos = 2587248 KB
 ----------------------------------------
 
