@@ -68,3 +68,7 @@ Vector de clases con punteros, las direcciones pueden estar regadas en memoria, 
 Cuando los datos son gigantes, no se pueden cargar todos a la RAM. Para eso:
 Con mmap (mapear archivo a memoria): el SO carga en RAM solo las partes del archivo que se usan, no todo.
 Con memoria virtual: el sistema “finge” tener más memoria usando disco (swap/paginación), aunque es más lento.
+
+## 📽️ Video de Sustentacion
+https://youtu.be/G8ZlHB0Bq_Y?si=eKQx4K4lWbe57Uex
+
