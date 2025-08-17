@@ -17,7 +17,7 @@ El repositorio contiene dos carpetas principales:
 - **struct_proc/** → Implementación con **structs**
 
 Cada carpeta incluye:
-- `proc_valor_class` o `proc_valor_struct` → Manejo por valor
+- `proc_valores_class` o `proc_valores_struct` → Manejo por valor
 - `proc_apuntadores_class` o `proc_apuntadores_struct` → Manejo con apuntadores  
 
 - **Las demas carpetas eran los generadores brindados por el profesor**
@@ -34,7 +34,7 @@ Cada carpeta incluye:
    ```bash
    cd class_proc
    make
-   ./proc_valor_class
+   ./proc_valores_class
    ./proc_apuntadores_class
 
 3. **Volver a la carpeta principal**
@@ -45,7 +45,7 @@ Cada carpeta incluye:
    ```bash
     cd struct_proc
     make
-    ./proc_valor_struct
+    ./proc_valores_struct
     ./proc_apuntadores_struct
 
 ## Preguntas de pensamiento crítico

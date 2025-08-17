@@ -45,4 +45,3 @@ METRICAS DE PROCESAMIENTO USANDO STRUCTS Y APUNTADORES CON 10000000 PERSONAS:
 Tiempo = 95973 ms
 Memoria usada después de procesar los datos = 2587248 KB
 ----------------------------------------
-
