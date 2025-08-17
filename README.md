@@ -4,6 +4,13 @@ Comparativa de uso de **Structs vs Clases** y **Paso por Valor vs Apuntadores** 
 Este proyecto busca analizar el rendimiento y consumo de memoria de diferentes combinaciones de estructuras de datos, usando **10 millones de registros** como caso de prueba.  
 
 ---
+# 👥 Integrantes
+-	Simon Mazo Gomez
+-	Juan Simon Ospina Martinez
+-	Samuel Samper Cardona
+-	Andres Felipe Velez Alvarez
+-	Sebastian Salazar Henao
+
 
 # 🛠️ Entorno de desarollo
 
